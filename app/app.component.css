@@ -1,0 +1,51 @@
+
+svg.graph {
+    height: 500px;
+    /*width: 800px;*/
+    width: 100%;
+    background-color: #f3f5f7;
+    padding-top: 30px;
+}
+
+svg.graph .grid {
+    stroke: #d4d2da;
+    /*stroke-dasharray: 1 2;*/
+    stroke-width: 1;
+}
+
+/*svg.graph .points {*/
+/*!*stroke: white;*!*/
+/*stroke: red;*/
+/*stroke-width: 3;*/
+/*}*/
+
+/*svg.graph .first_set {*/
+/*!*fill: #00554d;*!*/
+/*fill: none;*/
+/*}*/
+
+svg.graph .surfaces {
+    fill-opacity: 0.5;
+}
+
+svg.graph .grid.double {
+    stroke-opacity: 0.4;
+}
+
+svg.graph .labels {
+    font-family: Arial;
+    font-size: 14px;
+    kerning: 1;
+    fill: #98979c;
+
+}
+
+svg.graph .labels.x-labels {
+    text-anchor: middle;
+
+
+}
+
+svg.graph .labels.y-labels {
+    text-anchor: end;
+}
