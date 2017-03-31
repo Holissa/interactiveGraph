@@ -1,10 +1,8 @@
 
 svg.graph {
     height: 500px;
-    /*width: 800px;*/
-    width: 100%;
+    width: 70%;
     background-color: #f3f5f7;
-    padding-top: 30px;
 }
 
 svg.graph .grid {
@@ -13,16 +11,11 @@ svg.graph .grid {
     stroke-width: 1;
 }
 
-/*svg.graph .points {*/
-/*!*stroke: white;*!*/
-/*stroke: red;*/
-/*stroke-width: 3;*/
-/*}*/
+svg.graph .indicator {
+    stroke: #d4d2da;
+    stroke-dasharray: 1 2;
 
-/*svg.graph .first_set {*/
-/*!*fill: #00554d;*!*/
-/*fill: none;*/
-/*}*/
+}
 
 svg.graph .surfaces {
     fill-opacity: 0.5;
@@ -43,9 +36,9 @@ svg.graph .labels {
 svg.graph .labels.x-labels {
     text-anchor: middle;
 
-
 }
 
 svg.graph .labels.y-labels {
     text-anchor: end;
 }
+
