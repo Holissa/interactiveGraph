@@ -1,27 +1,10 @@
 import {Component} from '@angular/core';
 
-
-export class Item {
-    name: string;
-    value: number;
-
-
-    constructor(name: string, value: number) {
-        this.name = name;
-        this.value = value;
-
-    }
-}
-
 @Component({
     selector: 'my-app',
     template: `
         <svg class="graph" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" (mousemove)="getPx($event.clientX)">
-
             
-            <!--<g class="indicator" [ngStyle]="{'visibility': (indKey == true) ? 'visible' : 'hidden'}">-->
-
-            <!--<g class="grid y-grid" id="yGrid" (mousemove)="getW($event)">-->
             <g class="grid y-grid" id="yGrid">
                 <line x1="86" x2="95%" y1="126" y2="126"></line>
                 <line x1="86" x2="95%" y1="185" y2="185"></line>
@@ -87,11 +70,10 @@ export class Item {
             <!-------------------------------------------------------- END GRAPH -------------------------------------------------------->
 
 
-            
             <!-------------------------------------------------------- INDICATOR  -------------------------------------------------------->
             <circle class="shadow" [attr.cx]="pointCorX" [attr.cy]="pointCorY" r="5" stroke="#AAA" stroke-width="4"
                     stroke-opacity="1"></circle>
-            
+
             <g>
                 <filter id="dropShadow">
                     <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
@@ -101,32 +83,34 @@ export class Item {
                         <feMergeNode in="SourceGraphic"/>
                     </feMerge>
                 </filter>
-                <rect [attr.x]="par" y="10" width="200" height="100" fill="white" filter="url(#dropShadow)"/>
-                <text [attr.x]="par+70" y="22%" alignment-baseline="middle" text-anchor="middle">
-                    {{pointCorX}}{{months[monthName - 1]}} 2015
+                <rect [attr.x]="(pointCorX > 1080) ? pointCorX -200 : pointCorX" [attr.y]="pointCorY-120" width="200"
+                      height="100" fill="white" filter="url(#dropShadow)"/>
+                <text [attr.x]="(pointCorX > 1080) ? pointCorX-100 : pointCorX+100" [attr.y]="pointCorY-100"
+                      alignment-baseline="middle" text-anchor="middle">
+                    {{numDay}}{{months[monthName - 1]}} 2015
                 </text>
-                <line class="indicator" [attr.x1]="pointCorX" y1="110" [attr.x2]="pointCorX" y2="380"></line>
+                <line class="indicator" [attr.x1]="pointCorX" [attr.y1]="pointCorY" [attr.x2]="pointCorX"
+                      y2="360"></line>
             </g>
 
 
             <!-------------------------------------------------------- END INDICATOR  -------------------------------------------------------->
 
-            
+
             <g class="labels x-labels">
-                <text [attr.x]="item.value" [attr.y]="400" *ngFor="let item of items; let i=index; let last = last;"
-                      (click)="getValue(i)">
-                    {{item.name}}
+                <text [attr.x]="113+(100*i)" [attr.y]="400" *ngFor="let month of months; let i=index;">
+                    {{month}}
                 </text>
                 <text x="105" y="425" font-size="16px">2015</text>
             </g>
 
             <g class="labels y-labels">
-                <text x="70" y="120">80</text>
-                <text x="70" y="180">60</text>
-                <text x="70" y="240">40</text>
-                <text x="70" y="300">20</text>
-                <text x="70" y="365">0</text>
+                <text x="70" [attr.y]="120+(60*i)" *ngFor="let scale of scales; let i=index;">
+                    {{scale}}
+                </text>
             </g>
+            
+            
         </svg>
 
     `,
@@ -134,84 +118,129 @@ export class Item {
 })
 
 export class AppComponent {
-    par = 70;
-    x = 0;
-    indKey = false;
-    monthName = 1;
-    pointCorX = 110;
+
+
+
     d = document;
-    pointCorY = 130;
+    par; //координата по x, на которой мы находимся
+    indKey = false;
+    pointCorX = 110; //координаты контрольной точки по x
+    pointCorY = 130;//координаты контрольной точки по у
+    monthName = 1;
     numDay = 1;
+    regX = /\s\d+/g;// для поиска координат по x
+    regY = /,\d+/g;// для поиска координат по y
+    polyline;
+    points;
+    coordinatArX; //массив координат графика по x
+    coordinatArY;//массив координат графика по y
 
-    items: Item[] =
-        [
-            {name: "Январь", value: 113},
-            {name: "Февраль", value: 213},
-            {name: "Март", value: 313},
-            {name: "Апрель", value: 413},
-            {name: "Май", value: 513},
-            {name: "Июнь", value: 613},
-            {name: "Июль", value: 713},
-            {name: "Август", value: 813},
-            {name: "Сентябрь", value: 913},
-            {name: "Октябрь", value: 1013},
-            {name: "Ноябрь", value: 1113},
-            {name: "Декабрь", value: 1213}
 
-        ];
 
+// ----------------------------------------------------------- DATA -----------------------------------------------------------
+
+    scales = [80, 60, 40, 20, 0];
     months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+    days = [
+        {day: 2, dollar: 64, value: 0.52},
+        {day: 13, dollar: 62, value: 0.52},
+        {day: 21, dollar: 61, value: 0.52},
+        {day: 4, dollar: 64, value: 0.52},
+        {day: 18, dollar: 62, value: 0.52},
+        {day: 3, dollar: 64, value: 0.52},
+        {day: 10, dollar: 62, value: 0.52},
+        {day: 10, dollar: 64, value: 0.52},
+        {day: 7, dollar: 62, value: 0.52},
+        {day: 2, dollar: 64, value: 0.52},
+        {day: 13, dollar: 62, value: 0.52},
+        {day: 28, dollar: 64, value: 0.52},
+        {day: 15, dollar: 62, value: 0.52},
+        {day: 2, dollar: 64, value: 0.52},
+        {day: 14, dollar: 62, value: 0.52},
+        {day: 5, dollar: 64, value: 0.52},
+        {day: 27, dollar: 62, value: 0.52},
+        {day: 2, dollar: 64, value: 0.52},
+        {day: 13, dollar: 62, value: 0.52},
+        {day: 5, dollar: 64, value: 0.52},
+        {day: 11, dollar: 62, value: 0.52},
+        {day: 25, dollar: 64, value: 0.52},
+        {day: 13, dollar: 62, value: 0.52},
+        {day: 21, dollar: 61, value: 0.52},
+        {day: 2, dollar: 64, value: 0.52},
+        {day: 1, dollar: 62, value: 0.52},
+        {day: 9, dollar: 64, value: 0.52},
+        {day: 15, dollar: 62, value: 0.52},
+        {day: 22, dollar: 64, value: 0.52},
+        {day: 13, dollar: 62, value: 0.52},
+        {day: 2, dollar: 64, value: 0.52},
+        {day: 6, dollar: 62, value: 0.52},
+        {day: 12, dollar: 64, value: 0.52},
+        {day: 14, dollar: 62, value: 0.52},
+        {day: 23, dollar: 64, value: 0.52},
+        {day: 13, dollar: 62, value: 0.52},
+        {day: 2, dollar: 64, value: 0.52},
+        {day: 10, dollar: 62, value: 0.52},
+        {day: 14, dollar: 64, value: 0.52},
+        {day: 23, dollar: 62, value: 0.52},
+        {day: 2, dollar: 64, value: 0.52},
+        {day: 13, dollar: 62, value: 0.52},
+        {day: 3, dollar: 62, value: 0.52},
+        {day: 27, dollar: 64, value: 0.52},
+        {day: 13, dollar: 62, value: 0.52},
+        {day: 2, dollar: 64, value: 0.52},
+        {day: 13, dollar: 62, value: 0.52}
 
+    ];
 
-    getValue(i) {
-        var val = document.getElementsByTagName('text')[i].attributes['x'];
-        var val = val.toString();
-        console.log(typeof val);
+    // ----------------------------------------------------------- END DATA -----------------------------------------------------------
 
-    };
-
-    getPx(event): void {
+    getPx(event) {
+        if (event < 110) {
+            this.par = 110;
+        }
         this.par = event;
         this.monthName = Math.floor(this.par / 98);
 
-        var polyline = this.d.getElementById('poly'),
-            points = polyline.getAttribute('points'),
-            reg = /\d+/g,
-            coordinatAr = points.match(reg); //сформируем массив координат графика
+        this.getPolylineAr();
 
-
-        for (var i = 0, max = coordinatAr.length; i < max; i++) {
-            if (i % 2 == 0) { //нам нужны координаты только по x
-                if (this.par == Number(coordinatAr[i])) {
-                    this.pointCorX = this.par;
-                    this.pointCorY = Number(coordinatAr[i + 1]);
-                    return;
-                }
+        for (let i = 0, max = this.coordinatArX.length; i < max; i++) {
+            if (this.par == Number(this.coordinatArX[i])) {
+                this.pointCorX = this.par;
+                this.pointCorY = Number(this.coordinatArY[i]);
+                this.numDay = this.days[i].day;
+                return;
             }
         }
 
-
     };
 
-    getW(event): void {
+
+    getPolylineAr() {
+        if(this.indKey === true){
+            return;
+        }
+        else{
+            this.polyline = this.d.getElementById('poly');
+            this.points = this.polyline.getAttribute('points');
+            // regY = /\d+/g;// для поиска всех координат (и по x и по y)
+
+            this.coordinatArX = this.points.match(this.regX), //сформируем массив координат графика по x
+                this.coordinatArY = this.points.match(this.regY).join('').split(','); //сформируем массив координат графика по у (добавляет в массив координаты вместе с запятой,
+            // убираем их с помощью манипуляций с join и split)
+
+            this.coordinatArY.splice(0, 1);//так как обрезает по ',', первый элемент массива оказывается пустым, удаляем его из массива
+            this.indKey = true;
+        }
+    };
+
+
+    getW(event) {
         // event.currentTarget.getBBox().width;
-        var lineLength = event.currentTarget.getBBox().width; //длина линии
+        let lineLength = event.currentTarget.getBBox().width; //длина линии
         // var monthLength = Math.floor(lineLength / 12); //найдем сколько пикселей приходиться на каждый месяц (98px)
-        var monthLength = Math.floor(lineLength / 365); //найдем сколько пикселей приходиться на каждый день (3px)
+        let monthLength = Math.floor(lineLength / 365); //найдем сколько пикселей приходиться на каждый день (3px)
         console.log(monthLength);
-
-
-    };
-
-
-    changedItem() {
-        var count = 113;
-        return function () {
-            return count += 146;
-        };
-    };
-
-    counter = this.changedItem();
+    };//функция для получения количества пикселей на месяц и на день
 
 
 }
