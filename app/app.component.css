@@ -1,4 +1,3 @@
-
 svg.graph {
     height: 500px;
     width: 70%;
@@ -7,14 +6,12 @@ svg.graph {
 
 svg.graph .grid {
     stroke: #d4d2da;
-    /*stroke-dasharray: 1 2;*/
     stroke-width: 1;
 }
 
 svg.graph .indicator {
     stroke: #d4d2da;
-    stroke-dasharray: 1 2;
-
+    stroke-dasharray: 7 2;
 }
 
 svg.graph .surfaces {
@@ -30,12 +27,10 @@ svg.graph .labels {
     font-size: 14px;
     kerning: 1;
     fill: #98979c;
-
 }
 
 svg.graph .labels.x-labels {
     text-anchor: middle;
-
 }
 
 svg.graph .labels.y-labels {
